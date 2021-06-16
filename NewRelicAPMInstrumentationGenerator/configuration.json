@@ -1,0 +1,77 @@
+{
+  "xmlFile": "XMLOutput.xml",
+  "stdOutFile": "Output.txt",
+  "namespacePrefix": "MyNamespace",
+  "methodFilterMatchList": [
+    "ToString",
+    "Equals",
+    "GetType",
+    "Finalize",
+    "MemberwiseClone",
+    "GetHashCode",
+    "ComputeStringHash",
+    "Invoke",
+    "BeginInvoke",
+    "EndInvoke",
+    "IsUnmanagedFunctionPtr",
+    "InvocationListLogicallyNull",
+    "GetObjectData",
+    "NewMulticastDelegate",
+    "StoreDynamicMethod",
+    "CombineImpl",
+    "RemoveImpl",
+    "GetInvocationList",
+    "GetTarget",
+    "GetMethodImpl",
+    "DynamicInvoke",
+    "DynamicInvokeImpl",
+    "Clone",
+    "GetMulticastInvoke",
+    "GetInvokeMethod",
+    "FindMethodHandle",
+    "AdjustTarget",
+    "GetCallStub",
+    "AddExceptionDataForRestrictedErrorInfo",
+    "TryGetRestrictedLanguageErrorObject",
+    "GetBaseException",
+    "SetErrorCode",
+    "PrepForRemoting",
+    "InternalPreserveStackTrace",
+    "DeepCopyStackTrace",
+    "DeepCopyDynamicMethods",
+    "GetStackTracesDeepCopy",
+    "RestoreExceptionDispatchInfo",
+    "InternalToString",
+    "GetValue",
+    "CompareTo",
+    "HasFlag",
+    "GetTypeCode"
+  ],
+  "methodFilterStartsWithList": [
+    "SYSTEM",
+    "GET_",
+    "SET_",
+    "ADD_",
+    "REMOVE_",
+    "<"
+  ],
+  "methodFilterEndsWithList": [],
+  "classFilterMatchList": [
+    "FilterOutClass1",
+    "FilterOutClass2"
+  ],
+  "classFilterStartsWithList": [
+    "<"
+  ],
+  "classFilterEndsWithList": [
+    "`1"
+  ],
+  "transactionParameterTypes": [
+    "ObjectTypeToInstrument",
+    "AnotherTypeToInstrument"
+  ],
+  "transactionConstructorList": [
+    "ClassToInstrument"
+  ],
+  "excludeTraces": true
+}
