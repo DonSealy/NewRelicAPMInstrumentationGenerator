@@ -1,9 +1,11 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 16
-VisualStudioVersion = 16.0.30907.101
+# Visual Studio Version 17
+VisualStudioVersion = 17.0.31423.177
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NewRelicAPMInstrumentationGenerator", "NewRelicAPMInstrumentationGenerator\NewRelicAPMInstrumentationGenerator.csproj", "{919F3A0B-D69E-40D7-8AFE-5E12A26C8552}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NewRelicAPMInstrumentationGenerator.UnitTests", "NewRelicAPMInstrumentationGenerator.UnitTests\NewRelicAPMInstrumentationGenerator.UnitTests.csproj", "{06DE4FE9-8811-4E32-B061-1AABB10906B2}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -15,6 +17,10 @@ Global
 		{919F3A0B-D69E-40D7-8AFE-5E12A26C8552}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{919F3A0B-D69E-40D7-8AFE-5E12A26C8552}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{919F3A0B-D69E-40D7-8AFE-5E12A26C8552}.Release|Any CPU.Build.0 = Release|Any CPU
+		{06DE4FE9-8811-4E32-B061-1AABB10906B2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{06DE4FE9-8811-4E32-B061-1AABB10906B2}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{06DE4FE9-8811-4E32-B061-1AABB10906B2}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{06DE4FE9-8811-4E32-B061-1AABB10906B2}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

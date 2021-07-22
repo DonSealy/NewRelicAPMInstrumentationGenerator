@@ -19,16 +19,16 @@ namespace NewRelicAPMInstrumentationGenerator
             var config = ConfigurationReader.ReadConfigurationFile();
             xmlBuilder = new XMLBuilder($"./{config.xmlFile}");
 
-            reflectionHelper = new Reflection(Path.GetDirectoryName(args[0]));
+            reflectionHelper = new Reflection(config);
             reflectionHelper.ProcessAssemblyFile(args[0]);
 
             BuildXMLOutputToFile();
-            OuputDataListToStream(config);
+            OuputDataListToStream(config.stdOutFile);
         }
 
-        private static void OuputDataListToStream(ConfigurationModel config)
+        private static void OuputDataListToStream(string stdOutFile)
         {
-            bool writeToFile = !string.IsNullOrEmpty(config.stdOutFile);
+            bool writeToFile = !string.IsNullOrEmpty(stdOutFile);
 
             TextWriter stdOut = Console.Out;
             FileStream fstream = null;
@@ -38,13 +38,13 @@ namespace NewRelicAPMInstrumentationGenerator
             {
                 try
                 {
-                    fstream = new FileStream($"./{config.stdOutFile}", FileMode.CreateNew, FileAccess.Write);
+                    fstream = new FileStream($"./{stdOutFile}", FileMode.CreateNew, FileAccess.Write);
                     writer = new StreamWriter(fstream);
                     Console.SetOut(writer);
                 }
                 catch (IOException)
                 {
-                    fstream = new FileStream($"./{config.stdOutFile}", FileMode.Truncate, FileAccess.Write);
+                    fstream = new FileStream($"./{stdOutFile}", FileMode.Truncate, FileAccess.Write);
                     writer = new StreamWriter(fstream);
                     Console.SetOut(writer);
                 }

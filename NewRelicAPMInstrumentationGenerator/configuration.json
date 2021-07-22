@@ -55,7 +55,9 @@
     "REMOVE_",
     "<"
   ],
-  "methodFilterEndsWithList": [],
+  "methodFilterEndsWithList": [
+    "~"
+  ],
   "classFilterMatchList": [
     "FilterOutClass1",
     "FilterOutClass2"

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -8,44 +9,28 @@ namespace NewRelicAPMInstrumentationGenerator
 {
     public class Reflection
     {
-        private readonly string Path;
-        private readonly string NamespacePrefix;
+        private readonly ConfigurationModel Config;
 
-        private readonly List<string> methodFilterMatchList;
-        private readonly List<string> methodFilterStartsWithList;
-        private readonly List<string> methodFilterEndsWithList;
-        private readonly List<string> classFilterMatchList;
-        private readonly List<string> classFilterStartsWithList;
-        private readonly List<string> classFilterEndsWithList;
-        private readonly List<string> transactionParameterTypes;
-        private readonly List<string> transactionConstructorList;
-        private readonly bool excludeTraceMethods;
-
-        public List<string> ProcessedAssemblies { get; private set; }
-        public List<ClassDataModel> DataList { get; private set; }
-
-        public Reflection(string path)
+        public Reflection(ConfigurationModel config)
         {
-            Path = path;
             DataList = new List<ClassDataModel>();
             ProcessedAssemblies = new List<string>();
 
-            var config = ConfigurationReader.ReadConfigurationFile();
-            NamespacePrefix = config.namespacePrefix;
-
-            methodFilterMatchList = config.methodFilterMatchList;
-            methodFilterStartsWithList = config.methodFilterStartsWithList;
-            methodFilterEndsWithList = config.methodFilterEndsWithList;
-
-            classFilterMatchList = config.classFilterMatchList;
-            classFilterStartsWithList = config.classFilterStartsWithList;
-            classFilterEndsWithList = config.classFilterEndsWithList;
-
-            transactionConstructorList = config.transactionConstructorList;
-            transactionParameterTypes = config.transactionParameterTypes;
-
-            excludeTraceMethods = config.excludeTraces;
+            Config = config;
         }
+
+        public string NamespacePrefix => Config.namespacePrefix;
+        public ImmutableList<string> MethodFilterMatchList => ImmutableList.Create(Config.methodFilterMatchList.ToArray());
+        public ImmutableList<string> MethodFilterStartsWithList => ImmutableList.Create(Config.methodFilterStartsWithList.ToArray());
+        public ImmutableList<string> MethodFilterEndsWithList => ImmutableList.Create(Config.methodFilterEndsWithList.ToArray());
+        public ImmutableList<string> ClassFilterMatchList => ImmutableList.Create(Config.classFilterMatchList.ToArray());
+        public ImmutableList<string> ClassFilterStartsWithList => ImmutableList.Create(Config.classFilterStartsWithList.ToArray());
+        public ImmutableList<string> ClassFilterEndsWithList => ImmutableList.Create(Config.classFilterEndsWithList.ToArray());
+        public ImmutableList<string> TransactionConstructorList => ImmutableList.Create(Config.transactionConstructorList.ToArray());
+        public ImmutableList<string> TransactionParameterTypes => ImmutableList.Create(Config.transactionParameterTypes.ToArray());
+        public bool ExcludeTraceMethods => Config.excludeTraces;
+        public List<string> ProcessedAssemblies { get; private set; }
+        public List<ClassDataModel> DataList { get; private set; }
 
         public void ProcessAssemblyFile(string filePath)
         {
@@ -96,7 +81,7 @@ namespace NewRelicAPMInstrumentationGenerator
                 if (assembly.Name.ToUpper().StartsWith(NamespacePrefix) && ProcessedAssemblies.Contains(assembly.Name) == false)
                 {
                     ProcessedAssemblies.Add(assembly.Name);
-                    ProcessAssemblyFile($"{Path}\\{assembly.Name}.dll");
+                    ProcessAssemblyFile($"{source.Location}\\{assembly.Name}.dll");
                 }
             }
         }
@@ -106,11 +91,11 @@ namespace NewRelicAPMInstrumentationGenerator
             var ctor = new MethodDataModel
             {
                 Name = $".ctor",
-                IsTransaction = transactionConstructorList?.Contains(type.Name) ?? false,
+                IsTransaction = TransactionConstructorList?.Contains(type.Name) ?? false,
                 MetricLabel = $"{type.Name}_{type.Name}"
             };
 
-            if (excludeTraceMethods == false || ctor.IsTransaction)
+            if (ExcludeTraceMethods == false || ctor.IsTransaction)
             {
                 data.Methods.Add(ctor);
             }
@@ -125,7 +110,7 @@ namespace NewRelicAPMInstrumentationGenerator
                 MetricLabel = $"{type.Name}_{methodInfo.Name}",
             };
 
-            if (excludeTraceMethods == false || newMethod.IsTransaction)
+            if (ExcludeTraceMethods == false || newMethod.IsTransaction)
             {
                 data.Methods.Add(newMethod);
             }
@@ -145,7 +130,7 @@ namespace NewRelicAPMInstrumentationGenerator
                 var parameterType = parameter.ParameterType.ToString();
 
                 // second condition catches parameter passed by reference.
-                if (transactionParameterTypes.Contains(parameterType) || transactionParameterTypes.Contains(parameterType.TrimEnd('&')))
+                if (TransactionParameterTypes.Contains(parameterType) || TransactionParameterTypes.Contains(parameterType.TrimEnd('&')))
                 {
                     return true;
                 }
@@ -180,31 +165,35 @@ namespace NewRelicAPMInstrumentationGenerator
             }
         }
 
-        private bool ExcludeNamespace(string classNamespace)
+        public bool ExcludeNamespace(string classNamespace)
         {
-            if (classNamespace == null)
-            {
-                return true;
-            }
-
-            return !classNamespace.ToUpper().StartsWith(NamespacePrefix);
+            return !classNamespace?.ToUpper().StartsWith(NamespacePrefix.ToUpper()) ?? true;
         }
 
-        private bool ExcludeClass(string className)
+        public bool ExcludeClass(string className)
         {
-            int count = classFilterMatchList.Count(s => className == s);
-            count += classFilterStartsWithList.Count(s => className.ToUpper().StartsWith(s));
-            count += classFilterEndsWithList.Count(s => className.ToUpper().EndsWith(s));
+            if (string.IsNullOrWhiteSpace(className))
+                return true;
+
+            int count = ClassFilterMatchList.Count(s => className.ToUpper() == s.ToUpper());
+            count += ClassFilterStartsWithList.Count(s => className.ToUpper().StartsWith(s.ToUpper()));
+            count += ClassFilterEndsWithList.Count(s => className.ToUpper().EndsWith(s.ToUpper()));
 
             return count > 0;
         }
 
-        private bool ExcludeMethod(string methodName, List<MethodDataModel> dataMethodsList)
+        public bool ExcludeMethod(string methodName, List<MethodDataModel> dataMethodsList)
         {
-            int count = methodFilterMatchList.Count(s => methodName == s);
-            count += methodFilterStartsWithList.Count(s => methodName.ToUpper().StartsWith(s));
-            count += methodFilterEndsWithList.Count(s => methodName.ToUpper().EndsWith(s));
-            count += dataMethodsList.Count(s => methodName == s.Name);
+            if (string.IsNullOrWhiteSpace(methodName))
+                return true;
+
+            int count = MethodFilterMatchList.Count(s => methodName.ToUpper() == s.ToUpper());
+            count += MethodFilterStartsWithList.Count(s => methodName.ToUpper().StartsWith(s));
+            count += MethodFilterEndsWithList.Count(s => methodName.ToUpper().EndsWith(s));
+
+            // Exclude overloaded methods.
+            if (dataMethodsList != null && dataMethodsList.Count() > 0)
+                count += dataMethodsList.Count(s => methodName.ToUpper() == s.Name.ToUpper());
 
             return count > 0;
         }
